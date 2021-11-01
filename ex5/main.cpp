@@ -7,8 +7,10 @@
 
 static int nbRuns = 0;
 
-void taskRun(int id) {
+static PcoSemaphore sem(0);
 
+void taskRun(int id) {
+    sem.acquire();
     nbRuns ++;
     logger() << "Tache" << id << "executes" << std::endl;
 }
@@ -27,6 +29,8 @@ TEST(Synchro, Standard)
     }
 
     PcoThread::usleep(1000000);
+    sem.release();
+    sem.release();
 
     EXPECT_EQ(nbRuns, 0);
 
