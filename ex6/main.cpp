@@ -96,20 +96,27 @@ TEST(Sequentialite, Standard)
 {
     PcoManager::getInstance()->setMaxSleepDuration(1000, PcoManager::EventType::ThreadCreation);
 
-    // Il s'agit ici d'un exemple qui n'est pas forcément la solution
     std::vector<std::unique_ptr<PcoThread>> threads(8);
     threads[0] = std::make_unique<PcoThread>(t0);
+    threads[0]->join();
+
     threads[1] = std::make_unique<PcoThread>(t1);
     threads[2] = std::make_unique<PcoThread>(t2);
+    threads[1]->join();
+
     threads[3] = std::make_unique<PcoThread>(t3);
     threads[4] = std::make_unique<PcoThread>(t4);
     threads[5] = std::make_unique<PcoThread>(t5);
-    threads[6] = std::make_unique<PcoThread>(t6);
-    threads[7] = std::make_unique<PcoThread>(t7);
+    threads[3]->join();
+    threads[4]->join();
+    threads[5]->join();
 
-    for(int i = 0; i < 8; i++) {
-        threads[i]->join();
-    }
+    threads[6] = std::make_unique<PcoThread>(t6);
+    threads[6]->join();
+    threads[2]->join();
+
+    threads[7] = std::make_unique<PcoThread>(t7);
+    threads[7]->join();
 
     checker.check();
 }
