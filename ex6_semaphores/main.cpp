@@ -8,6 +8,11 @@
 #include <pcosynchro/pcothread.h>
 #include <pcosynchro/pcosemaphore.h>
 
+static PcoSemaphore s_t0;
+static PcoSemaphore s_t1;
+static PcoSemaphore s_t345;
+static PcoSemaphore s_t26;
+
 
 class Checker
 {
@@ -51,42 +56,61 @@ static Checker checker;
 void t0()
 {
     checker.compute(0);
+    s_t0.release();
+    s_t0.release();
 }
 
 void t1()
 {
+    s_t0.acquire();
     checker.compute(1);
-
+    s_t1.release();
+    s_t1.release();
+    s_t1.release();
 }
 
 void t2()
 {
+    s_t0.acquire();
     checker.compute(2);
+    s_t26.release();
 }
 
 void t3()
 {
+    s_t1.acquire();
     checker.compute(3);
+    s_t345.release();
 }
 
 
 void t4()
 {
+    s_t1.acquire();
     checker.compute(4);
+    s_t345.release();
 }
 
 void t5()
 {
+    s_t1.acquire();
     checker.compute(5);
+    s_t345.release();
 }
 
 void t6()
 {
+    s_t345.acquire();
+    s_t345.acquire();
+    s_t345.acquire();
     checker.compute(6);
+    s_t26.release();
 }
 
 void t7()
 {
+    s_t26.acquire();
+    s_t26.acquire();
     checker.compute(7);
 }
 
