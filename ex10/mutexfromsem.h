@@ -47,9 +47,15 @@ public:
         mutex.release();
     }
 
+    //! Returns true if the mutex can be acquired, false if it is already locked
     bool trylock()
     {
-        // TODO
-        return !locked;
-    }  //! Returns true if the mutex can be acquired, false if it is already locked
+        mutex.acquire();
+        bool canLock = !locked;
+        if (canLock) {
+            locked = true;
+        }
+        mutex.release();
+        return canLock;
+    }
 };
