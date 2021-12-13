@@ -6,15 +6,17 @@
 
 template<typename T> class Buffer2ConsoSemaphore : public AbstractBuffer<T> {
 protected:
+    const int MAX_CONSUMED = 2;
     std::vector<T> elements;
-    int writePointer, readPointer, nbElements, bufferSize;
+    int writePointer, readPointer, nbElements, bufferSize, nbConsumed;
     PcoSemaphore mutex, waitProd, waitConso;
     unsigned nbWaitingProd, nbWaitingConso;
 
 public:
     Buffer2ConsoSemaphore(unsigned bufferSize) : elements(bufferSize),
         writePointer(0), readPointer(0), nbElements(0), bufferSize(bufferSize),
-        mutex(1), waitProd(0), waitConso(0), nbWaitingProd(0), nbWaitingConso(0) {}
+        mutex(1), waitProd(0), waitConso(0), nbWaitingProd(0), nbWaitingConso(0),
+        nbConsumed(0) {}
 
     virtual ~Buffer2ConsoSemaphore() {}
 
@@ -45,13 +47,26 @@ public:
             waitConso.acquire();
         }
         item = elements[readPointer];
-        readPointer = (readPointer + 1) % bufferSize;
-        nbElements--;
-        if (nbWaitingProd > 0) {
-            nbWaitingProd--;
-            waitProd.release();
+        ++nbConsumed;
+
+        if (nbConsumed == MAX_CONSUMED) {
+            nbConsumed = 0;
+            readPointer = (readPointer + 1) % bufferSize;
+            nbElements--;
+
+            if (nbWaitingProd > 0) {
+                nbWaitingProd--;
+                waitProd.release();
+            } else {
+                mutex.release();
+            }
         } else {
-            mutex.release();
+            if (nbWaitingConso > 0) {
+                --nbWaitingConso;
+                waitConso.release();
+            } else {
+                mutex.release();
+            }
         }
         return item;
     }
