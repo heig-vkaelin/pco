@@ -35,16 +35,16 @@ public:
 
 #define N 2
 
-template<typename T> class Buffer2ConsoSemaphoreV2 : public AbstractBuffer<T> {
+template<typename T> class Buffer2ConsoSemaphoreGeneral : public AbstractBuffer<T> {
 protected:
     PcoSemaphore waitFull, waitEmpty, mutex;
     T element;
     int consume;
 
 public:
-    Buffer2ConsoSemaphoreV2() : waitFull(0), waitEmpty(1), consume(0) {}
+    Buffer2ConsoSemaphoreGeneral() : waitFull(0), waitEmpty(1), consume(0) {}
 
-    virtual ~Buffer2ConsoSemaphoreV2() {}
+    virtual ~Buffer2ConsoSemaphoreGeneral() {}
 
     virtual void put(T item) {
         waitEmpty.acquire();
@@ -79,8 +79,12 @@ public:
 
     virtual ~Buffer2ConsoMesa() {}
 
-    virtual void put(T item) {}
-    virtual T get(void) {}
+    virtual void put(T item) {
+
+    }
+    virtual T get(void) {
+
+    }
 };
 
 
@@ -94,8 +98,12 @@ public:
 
     virtual ~Buffer2ConsoHoare() {}
 
-    virtual void put(T item) {}
-    virtual T get(void) {}
+    virtual void put(T item) {
+
+    }
+    virtual T get(void) {
+
+    }
 };
 
 
