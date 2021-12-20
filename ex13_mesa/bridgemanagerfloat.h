@@ -1,42 +1,31 @@
+#include <pcosynchro/pcomutex.h>
+#include <pcosynchro/pcoconditionvariable.h>
 
-#include <pcosynchro/pcosemaphore.h>
-
+// 13.2 Version Mesa
 
 class BridgeManagerFloat {
 private:
-    PcoSemaphore waiting;
-    PcoSemaphore mutex;
-    PcoSemaphore fifo;
-
-    float currentWeight;
-    float maxWeight;
-    int nbWaiting;
+    float currentWeight, maxWeight;
+    PcoMutex mutex;
+    PcoConditionVariable canEnter;
 public:
-    BridgeManagerFloat(float maxWeight) : waiting(0), mutex(1), fifo(1),
-        currentWeight(0), maxWeight(maxWeight), nbWaiting(0) {}
+    BridgeManagerFloat(float maxWeight) : currentWeight(0), maxWeight(maxWeight) {}
 
     ~BridgeManagerFloat() {}
 
     void access(float weight) {
-        fifo.acquire();
-        mutex.acquire();
-        while(currentWeight + weight > maxWeight) {
-            ++nbWaiting;
-            mutex.release();
-            waiting.acquire();
-            mutex.acquire();
-        }
+        mutex.lock();
+        while (currentWeight + weight > maxWeight)
+            canEnter.wait(&mutex);
+
         currentWeight += weight;
-        mutex.release();
-        fifo.release();
+        mutex.unlock();
     }
 
     void leave(float weight) {
-        mutex.acquire();
+        mutex.lock();
         currentWeight -= weight;
-        for(int i = 0; i < nbWaiting; ++i)
-            waiting.release();
-        nbWaiting = 0;
-        mutex.release();
+        canEnter.notifyAll();
+        mutex.unlock();
     }
 };
