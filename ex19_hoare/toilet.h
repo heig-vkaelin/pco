@@ -74,7 +74,7 @@ virtual void womanLeaving() {
 		if (womanWaiting) {
 			signal(womanBlocking);
 		}
-	} else {
+	} else if (nbWomanIn == 0) {
 		n = 0;
 		if (manWaiting) {
 			signal(manBlocking);
@@ -92,7 +92,7 @@ virtual void manLeaving() {
 		if (manWaiting) {
 			signal(manBlocking);
 		}
-	} else {
+	} else if (nbManIn == 0) {
 		n = 0;
 		if (womanWaiting) {
 			signal(womanBlocking);
