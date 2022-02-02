@@ -37,7 +37,7 @@ public:
 
 template<typename T> class Buffer2ConsoSemaphoreGeneral : public AbstractBuffer<T> {
 protected:
-    PcoSemaphore waitFull, waitEmpty, mutex;
+    PcoSemaphore waitFull, waitEmpty;
     T element;
     int consume;
 
@@ -51,6 +51,7 @@ public:
         element = item;
         waitFull.release();
     }
+    
     virtual T get(void) {
         T item;
         waitFull.acquire();
@@ -101,6 +102,7 @@ public:
         mutex.unlock();
 
     }
+    
     virtual T get(void) {
         T item;
         mutex.lock();
